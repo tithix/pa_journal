@@ -246,6 +246,43 @@
         .event-importance-none {
             border-left: 3px solid #64748b;
         }
+
+        /* New dropdown styles */
+        .dropdown-select {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-toggle:hover {
+            background-color: #334155 !important;
+        }
+
+        .dropdown-toggle:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .dropdown-menu {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dropdown-item {
+            transition: background-color 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .dropdown-toggle.open i {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 
@@ -301,17 +338,30 @@
                         </div>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-4 relative">
                         <label class="block text-sm font-medium text-gray-300 mb-2">Market</label>
-                        <select id="marketFilter"
-                            class="border border-dark-700 rounded p-2 w-full text-sm bg-dark-800 text-white">
-                            <option value="">All Markets</option>
-                            <option value="forex">Forex</option>
-                            <option value="stocks">Stocks</option>
-                            <option value="crypto">Cryptocurrency</option>
-                            <option value="indices">Indices</option>
-                            <option value="commodities">Commodities</option>
-                        </select>
+                        <div class="dropdown-select">
+                            <button
+                                class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left">
+                                <span id="marketFilterDisplay">All Markets</span>
+                                <i class="fas fa-chevron-down text-xs transition-transform duration-200"></i>
+                            </button>
+                            <div
+                                class="dropdown-menu hidden absolute z-10 w-full mt-1 bg-dark-800 border border-dark-700 rounded-lg shadow-lg py-1">
+                                <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer" data-value="">All
+                                    Markets</div>
+                                <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                    data-value="forex">Forex</div>
+                                <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                    data-value="stocks">Stocks</div>
+                                <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                    data-value="crypto">Cryptocurrency</div>
+                                <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                    data-value="indices">Indices</div>
+                                <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                    data-value="commodities">Commodities</div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -783,7 +833,69 @@
             // Initialize calendar
             renderCalendar();
             renderEventsForDate(selectedDate);
+
+            // Initialize custom dropdowns
+            setupCustomDropdowns();
         });
+
+        // Custom dropdown functionality
+        function setupCustomDropdowns() {
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dropdown = toggle.closest('.dropdown-select');
+                    const menu = dropdown.querySelector('.dropdown-menu');
+
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown-menu').forEach(m => {
+                        if (m !== menu) m.classList.add('hidden');
+                    });
+                    document.querySelectorAll('.dropdown-toggle').forEach(t => {
+                        if (t !== toggle) t.classList.remove('open');
+                    });
+
+                    // Toggle current dropdown
+                    menu.classList.toggle('hidden');
+                    toggle.classList.toggle('open');
+                });
+            });
+
+            // Handle dropdown item selection
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const dropdown = item.closest('.dropdown-select');
+                    const toggle = dropdown.querySelector('.dropdown-toggle');
+                    const display = dropdown.querySelector('#marketFilterDisplay');
+
+                    // Update display
+                    display.textContent = item.textContent;
+
+                    // Mark as active
+                    dropdown.querySelectorAll('.dropdown-item').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    item.classList.add('active');
+
+                    // Close menu
+                    dropdown.querySelector('.dropdown-menu').classList.add('hidden');
+                    toggle.classList.remove('open');
+
+                    // Update filter
+                    activeFilters.market = item.dataset.value || null;
+                    renderEntries();
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+                document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                    toggle.classList.remove('open');
+                });
+            });
+        }
 
         // Calendar functions
         function renderCalendar() {
@@ -1064,7 +1176,7 @@
                     viewChartContainers.forEach(c => c.classList.add('hidden'));
                     // Show selected container
                     const chartType = tab.dataset.chart;
-                    document.getElementById(`view-${chartType}-chart-container`).class.classList.remove('hidden');
+                    document.getElementById(`view-${chartType}-chart-container`).classList.remove('hidden');
                 });
             });
         }
@@ -1367,7 +1479,7 @@
                             <div class="chart-container">
                                 <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'm15')">
                                     ${entry.m15ImageUrl ?
-                            `<img src="${entry.m15ImageUrl}, alt="M15 chart" class="max-h-full max-w-full object-contain">` :
+                            `<img src="${entry.m15ImageUrl}" alt="M15 chart" class="max-h-full max-w-full object-contain">` :
                             `<p class="text-gray-500 text-sm">No M15 chart</p>`}
                                 </div>
                                 <div class="chart-note">${entry.m15Notes || ''}</div>
@@ -1615,12 +1727,6 @@
             });
         });
 
-        // Apply market filter
-        document.getElementById('marketFilter').addEventListener('change', (e) => {
-            activeFilters.market = e.target.value || null;
-            renderEntries();
-        });
-
         // Clear all filters
         clearFilters.addEventListener('click', () => {
             // Reset all filters
@@ -1632,7 +1738,7 @@
 
             // Reset UI elements
             document.querySelectorAll('.time-range-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('marketFilter').value = '';
+            document.querySelector('.dropdown-item[data-value=""]').click();
 
             // Update and render
             updateTagFilters();
