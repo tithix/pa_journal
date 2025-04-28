@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Action Journal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                            500: '#64748b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            transition: background-color 0.3s ease;
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.5rem;
+            border: 1px solid #334155;
+            border-radius: 0.375rem;
+            min-height: 2.5rem;
+            background-color: #1e293b;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #334155;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+        }
+
+        .tag-remove {
+            margin-left: 0.25rem;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+
+        .tag-input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            min-width: 100px;
+            background-color: transparent;
+            color: white;
+        }
+
+        .journal-entry {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .journal-entry:hover {
+            transform: translateY(-2px);
+            border-left-color: #3b82f6;
+        }
+
+        .image-preview {
+            transition: all 0.3s ease;
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.03);
+        }
+
+        .time-range-btn {
+            transition: all 0.2s ease;
+        }
+
+        .time-range-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .glow {
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .chart-type-tab {
+            transition: all 0.2s ease;
+        }
+
+        .chart-type-tab.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .chart-preview {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e293b;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chart-preview:hover {
+            background-color: #334155;
+        }
+
+        .chart-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .chart-note {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+            text-align: center;
+            height: 2.5rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Calendar styles */
+        .calendar-day {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background-color: #334155;
+        }
+
+        .calendar-day.today {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .calendar-day.has-events {
+            position: relative;
+        }
+
+        .calendar-day.has-events::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 4px;
+            height: 4px;
+            background-color: #3b82f6;
+            border-radius: 9999px;
+        }
+
+        .calendar-day.selected {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .event-importance-high {
+            border-left: 3px solid #ef4444;
+        }
+
+        .event-importance-medium {
+            border-left: 3px solid #f59e0b;
+        }
+
+        .event-importance-low {
+            border-left: 3px solid #10b981;
+        }
+
+        .event-importance-none {
+            border-left: 3px solid #64748b;
+        }
+    </style>
+</head>
+
+<body class="bg-dark-900 text-gray-200 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-white">
+                        <i class="fas fa-chart-line text-blue-400 mr-2"></i>
+                        Price Action Journal
+                    </h1>
+                    <p class="text-gray-400 mt-2">Track your market observations and improve your trading skills</p>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="importBtn"
+                        class="bg-dark-700 hover:bg-dark-600 text-white px-3 py-2 rounded-lg flex items-center transition-all">
+                        <i class="fas fa-file-import mr-2"></i> Import
+                    </button>
+                    <button id="exportBtn"
+                        class="bg-dark-700 hover:bg-dark-600 text-white px-3 py-2 rounded-lg flex items-center transition-all">
+                        <i class="fas fa-file-export mr-2"></i> Export
+                    </button>
+                    <button id="newEntryBtn"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center glow hover:glow-lg transition-all">
+                        <i class="fas fa-plus mr-2"></i> New Entry
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar Filters -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-dark-800 p-4 rounded-lg shadow-sm h-fit sticky top-4 border border-dark-700">
+                    <h2 class="text-lg font-semibold mb-4 text-white">
+                        <i class="fas fa-filter mr-2 text-blue-400"></i>Filters
+                    </h2>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Session</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="time-range-btn py-2 px-3 rounded text-sm bg-dark-700 hover:bg-dark-600"
+                                data-range="C1">C1: 6PM-12AM</button>
+                            <button class="time-range-btn py-2 px-3 rounded text-sm bg-dark-700 hover:bg-dark-600"
+                                data-range="C2">C2: 12AM-6AM</button>
+                            <button class="time-range-btn py-2 px-3 rounded text-sm bg-dark-700 hover:bg-dark-600"
+                                data-range="C3">C3: 6AM-12PM</button>
+                            <button class="time-range-btn py-2 px-3 rounded text-sm bg-dark-700 hover:bg-dark-600"
+                                data-range="C4">C4: 12PM-6PM</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Market</label>
+                        <select id="marketFilter"
+                            class="border border-dark-700 rounded p-2 w-full text-sm bg-dark-800 text-white">
+                            <option value="">All Markets</option>
+                            <option value="forex">Forex</option>
+                            <option value="stocks">Stocks</option>
+                            <option value="crypto">Cryptocurrency</option>
+                            <option value="indices">Indices</option>
+                            <option value="commodities">Commodities</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Tags</label>
+                        <div class="flex flex-wrap gap-2 mt-1" id="tagFilters">
+                            <!-- Tags will be added here dynamically -->
+                        </div>
+                    </div>
+
+                    <button id="applyFilters"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg w-full text-sm mb-2">
+                        Apply Filters
+                    </button>
+                    <button id="clearFilters" class="text-gray-400 hover:text-gray-200 text-sm w-full text-left">
+                        Clear all filters
+                    </button>
+                </div>
+
+                <!-- Calendar and Economic Events -->
+                <div class="bg-dark-800 p-4 rounded-lg shadow-sm border border-dark-700 sticky top-[500px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-white">
+                            <i class="fas fa-calendar-alt mr-2 text-blue-400"></i>Calendar
+                        </h2>
+                        <div class="flex space-x-2">
+                            <button id="prevMonth" class="text-gray-400 hover:text-white p-1">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button id="nextMonth" class="text-gray-400 hover:text-white p-1">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="text-center font-medium text-gray-300 mb-2" id="currentMonthYear">
+                            <!-- Month and year will be inserted here -->
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-2">
+                            <div>S</div>
+                            <div>M</div>
+                            <div>T</div>
+                            <div>W</div>
+                            <div>T</div>
+                            <div>F</div>
+                            <div>S</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1" id="calendarDays">
+                            <!-- Calendar days will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-sm font-medium text-gray-300">
+                                <i class="fas fa-bullhorn mr-2 text-blue-400"></i>Economic Events
+                            </h3>
+                            <button id="addEventBtn"
+                                class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded">
+                                <i class="fas fa-plus mr-1"></i> Add
+                            </button>
+                        </div>
+                        <div class="space-y-2 max-h-60 overflow-y-auto" id="eventsList">
+                            <!-- Events will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journal Entries -->
+            <div class="lg:col-span-3">
+                <div class="bg-dark-800 p-4 rounded-lg shadow-sm mb-4 border border-dark-700">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-white">
+                            <i class="fas fa-book-open mr-2 text-blue-400"></i>Recent Observations
+                        </h2>
+                        <div class="text-sm text-gray-400" id="entryCount">0 entries</div>
+                    </div>
+                </div>
+
+                <div id="entriesContainer" class="space-y-4">
+                    <!-- Entries will be loaded here -->
+                    <div class="text-center py-10 text-gray-500" id="noEntriesMessage">
+                        <i class="fas fa-book fa-3x mb-4 text-dark-700"></i>
+                        <p class="text-lg">No journal entries yet</p>
+                        <p class="text-sm mt-1">Click "New Entry" to add your first observation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Entry Modal -->
+    <div id="entryModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div
+            class="bg-dark-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-dark-700">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white">New Journal Entry</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="entryForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Date & Time (EST)</label>
+                        <input type="datetime-local" id="entryDateTime"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Market</label>
+                            <select id="entryMarket"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
+                                <option value="">Select Market</option>
+                                <option value="forex">Forex</option>
+                                <option value="stocks">Stocks</option>
+                                <option value="crypto">Cryptocurrency</option>
+                                <option value="indices">Indices</option>
+                                <option value="commodities">Commodities</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Session</label>
+                            <select id="entrySession"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
+                                <option value="">Select Session</option>
+                                <option value="C1">C1: 6PM-12AM EST</option>
+                                <option value="C2">C2: 12AM-6AM EST</option>
+                                <option value="C3">C3: 6AM-12PM EST</option>
+                                <option value="C4">C4: 12PM-6PM EST</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Symbol (e.g. EUR/USD,
+                            BTC/USD)</label>
+                        <input type="text" id="entrySymbol"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            placeholder="BTC/USD" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Observation Title</label>
+                        <input type="text" id="entryTitle"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            placeholder="e.g. Bullish engulfing pattern forming" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Detailed Notes</label>
+                        <textarea id="entryNotes" rows="5"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            placeholder="Describe the price action, patterns, and your analysis..." required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="flex border-b border-dark-700 mb-3">
+                            <button type="button" class="chart-type-tab active px-4 py-2 rounded-t-lg"
+                                data-chart="h1">H1 Chart</button>
+                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="m15">M15
+                                Chart</button>
+                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="m5">M5/M2
+                                Chart</button>
+                        </div>
+
+                        <div id="h1-chart-container" class="chart-container">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">H1 Chart URL</label>
+                            <input type="url" id="entryH1ImageUrl"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
+                                placeholder="https://example.com/h1-chart.png">
+                            <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
+                                id="h1-preview-container">
+                                <p class="text-gray-500 text-sm">H1 chart preview will appear here</p>
+                            </div>
+                            <textarea id="entryH1Notes"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
+                                placeholder="Brief notes about H1 timeframe (e.g. Bullish trend, potential resistance at 1.1200)"
+                                rows="2"></textarea>
+                        </div>
+
+                        <div id="m15-chart-container" class="chart-container hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">M15 Chart URL</label>
+                            <input type="url" id="entryM15ImageUrl"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
+                                placeholder="https://example.com/m15-chart.png">
+                            <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
+                                id="m15-preview-container">
+                                <p class="text-gray-500 text-sm">M15 chart preview will appear here</p>
+                            </div>
+                            <textarea id="entryM15Notes"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
+                                placeholder="Brief notes about M15 timeframe (e.g. Consolidation pattern, watch for breakout)"
+                                rows="2"></textarea>
+                        </div>
+
+                        <div id="m5-chart-container" class="chart-container hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">M5/M2 Chart URL</label>
+                            <input type="url" id="entryM5ImageUrl"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
+                                placeholder="https://example.com/m5-chart.png">
+                            <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
+                                id="m5-preview-container">
+                                <p class="text-gray-500 text-sm">M5/M2 chart preview will appear here</p>
+                            </div>
+                            <textarea id="entryM5Notes"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
+                                placeholder="Brief notes about M5/M2 timeframe (e.g. Short-term pullback, potential entry point)"
+                                rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Tags</label>
+                        <div class="tag-input-container">
+                            <input type="text" id="tagInput" class="tag-input"
+                                placeholder="Type and press enter to add tags">
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-2" id="tagsContainer"></div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" id="cancelEntry"
+                            class="px-4 py-2 border border-dark-700 rounded-lg text-gray-300 hover:bg-dark-700 hover:text-white">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                            Save Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Entry Modal -->
+    <div id="viewEntryModal"
+        class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div
+            class="bg-dark-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-dark-700">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white" id="viewEntryTitle"></h3>
+                    <button id="closeViewModal" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex items-center text-sm text-gray-400 mb-2">
+                        <span id="viewEntryDateTime" class="mr-3"></span>
+                        <span id="viewEntryMarket" class="mr-3"></span>
+                        <span id="viewEntrySession"></span>
+                    </div>
+                    <div class="text-sm font-medium text-gray-300 mb-2">
+                        <span id="viewEntrySymbol"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-300 mb-1">Observation Notes</h4>
+                    <div class="bg-dark-700 p-3 rounded text-gray-200" id="viewEntryNotes"></div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-300 mb-2">Charts</h4>
+                    <div class="chart-grid">
+                        <div class="chart-container">
+                            <div class="chart-preview" id="view-h1-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'h1')">
+                                <div id="view-h1-preview-container"
+                                    class="w-full h-full flex items-center justify-center">
+                                    <p class="text-gray-500 text-sm">No H1 chart available</p>
+                                </div>
+                            </div>
+                            <div class="chart-note" id="view-h1-note"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-preview" id="view-m15-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'm15')">
+                                <div id="view-m15-preview-container"
+                                    class="w-full h-full flex items-center justify-center">
+                                    <p class="text-gray-500 text-sm">No M15 chart available</p>
+                                </div>
+                            </div>
+                            <div class="chart-note" id="view-m15-note"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-preview" id="view-m5-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'm5')">
+                                <div id="view-m5-preview-container"
+                                    class="w-full h-full flex items-center justify-center">
+                                    <p class="text-gray-500 text-sm">No M5/M2 chart available</p>
+                                </div>
+                            </div>
+                            <div class="chart-note" id="view-m5-note"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-300 mb-1">Tags</h4>
+                    <div class="flex flex-wrap gap-2" id="viewEntryTags"></div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button id="deleteEntryBtn" class="text-red-400 hover:text-red-300 px-4 py-2">
+                        <i class="fas fa-trash mr-1"></i> Delete
+                    </button>
+                    <button id="editEntryBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-edit mr-1"></i> Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden z-50">
+        <div
+            class="bg-dark-800 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-dark-700">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white">Add Economic Event</h3>
+                    <button id="closeEventModal" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="eventForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Date</label>
+                        <input type="date" id="eventDate"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Time (EST)</label>
+                        <input type="time" id="eventTime"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Event Name</label>
+                        <input type="text" id="eventName"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            placeholder="e.g. Non-Farm Payrolls" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Importance</label>
+                        <select id="eventImportance"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Currency/Asset</label>
+                        <input type="text" id="eventCurrency"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            placeholder="e.g. USD, EUR, BTC">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Notes</label>
+                        <textarea id="eventNotes" rows="3"
+                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            placeholder="Additional details about the event"></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" id="cancelEvent"
+                            class="px-4 py-2 border border-dark-700 rounded-lg text-gray-300 hover:bg-dark-700 hover:text-white">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                            Save Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="fileInput" class="file-input" accept=".json">
+
+    <script>
+        // Initialize variables
+        let entries = JSON.parse(localStorage.getItem('priceActionJournal')) || [];
+        let currentEditingId = null;
+        let allTags = [];
+        let activeFilters = {
+            session: null,
+            market: null,
+            tags: []
+        };
+
+        // Economic events data
+        let economicEvents = JSON.parse(localStorage.getItem('economicEvents')) || [];
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDate = new Date();
+
+        // DOM Elements
+        const newEntryBtn = document.getElementById('newEntryBtn');
+        const entryModal = document.getElementById('entryModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelEntry = document.getElementById('cancelEntry');
+        const entryForm = document.getElementById('entryForm');
+        const entriesContainer = document.getElementById('entriesContainer');
+        const noEntriesMessage = document.getElementById('noEntriesMessage');
+        const viewEntryModal = document.getElementById('viewEntryModal');
+        const closeViewModal = document.getElementById('closeViewModal');
+        const deleteEntryBtn = document.getElementById('deleteEntryBtn');
+        const editEntryBtn = document.getElementById('editEntryBtn');
+        const applyFilters = document.getElementById('applyFilters');
+        const clearFilters = document.getElementById('clearFilters');
+        const importBtn = document.getElementById('importBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const fileInput = document.getElementById('fileInput');
+
+        // Calendar elements
+        const prevMonthBtn = document.getElementById('prevMonth');
+        const nextMonthBtn = document.getElementById('nextMonth');
+        const currentMonthYear = document.getElementById('currentMonthYear');
+        const calendarDays = document.getElementById('calendarDays');
+        const eventsList = document.getElementById('eventsList');
+        const addEventBtn = document.getElementById('addEventBtn');
+        const eventModal = document.getElementById('eventModal');
+        const closeEventModal = document.getElementById('closeEventModal');
+        const cancelEvent = document.getElementById('cancelEvent');
+        const eventForm = document.getElementById('eventForm');
+
+        // Tag functionality
+        const tagInput = document.getElementById('tagInput');
+        const tagsContainer = document.getElementById('tagsContainer');
+        const tagFilters = document.getElementById('tagFilters');
+
+        // Chart tabs
+        const chartTabs = document.querySelectorAll('.chart-type-tab');
+        const chartContainers = document.querySelectorAll('.chart-container');
+        const viewChartTabs = document.querySelectorAll('.view-chart-tab');
+        const viewChartContainers = document.querySelectorAll('.view-chart-container');
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEntries();
+            updateTagFilters();
+            setDefaultDateTime();
+
+            // Set up chart tab switching
+            setupChartTabs();
+            setupViewChartTabs();
+
+            // Set up image URL previews
+            setupImagePreviews();
+
+            // Set up import/export
+            setupImportExport();
+
+            // Initialize calendar
+            renderCalendar();
+            renderEventsForDate(selectedDate);
+        });
+
+        // Calendar functions
+        function renderCalendar() {
+            // Set month and year title
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            currentMonthYear.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            // Get first day of month and total days in month
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            // Clear previous calendar days
+            calendarDays.innerHTML = '';
+
+            // Add empty cells for days before first day of month
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'h-8';
+                calendarDays.appendChild(emptyDay);
+            }
+
+            // Add days of month
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                // Check if this day has events
+                const hasEvents = economicEvents.some(event => {
+                    const eventDate = new Date(event.date);
+                    return eventDate.getDate() === day &&
+                        eventDate.getMonth() === currentMonth &&
+                        eventDate.getFullYear() === currentYear;
+                });
+
+                if (hasEvents) {
+                    dayElement.classList.add('has-events');
+                }
+
+                // Check if this is today
+                if (day === today.getDate() &&
+                    currentMonth === today.getMonth() &&
+                    currentYear === today.getFullYear()) {
+                    dayElement.classList.add('today');
+                }
+
+                // Check if this is the selected date
+                if (day === selectedDate.getDate() &&
+                    currentMonth === selectedDate.getMonth() &&
+                    currentYear === selectedDate.getFullYear()) {
+                    dayElement.classList.add('selected');
+                }
+
+                dayElement.textContent = day;
+                dayElement.addEventListener('click', () => {
+                    selectedDate = new Date(currentYear, currentMonth, day);
+                    renderCalendar();
+                    renderEventsForDate(selectedDate);
+                });
+
+                calendarDays.appendChild(dayElement);
+            }
+        }
+
+        function renderEventsForDate(date) {
+            eventsList.innerHTML = '';
+
+            const eventsForDate = economicEvents.filter(event => {
+                const eventDate = new Date(event.date);
+                return eventDate.getDate() === date.getDate() &&
+                    eventDate.getMonth() === date.getMonth() &&
+                    eventDate.getFullYear() === date.getFullYear();
+            });
+
+            if (eventsForDate.length === 0) {
+                eventsList.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No events scheduled</p>';
+                return;
+            }
+
+            // Sort events by time
+            eventsForDate.sort((a, b) => {
+                const timeA = a.time || '00:00';
+                const timeB = b.time || '00:00';
+                return timeA.localeCompare(timeB);
+            });
+
+            eventsForDate.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = `bg-dark-700 p-3 rounded text-sm event-importance-${event.importance || 'none'}`;
+
+                const time = event.time ? `<span class="text-blue-400">${event.time}</span>` : '';
+                const currency = event.currency ? `<span class="bg-dark-600 px-2 py-1 rounded text-xs ml-2">${event.currency}</span>` : '';
+
+                eventElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="font-medium">${event.name}</div>
+                        ${time} ${currency}
+                    </div>
+                    ${event.notes ? `<div class="text-gray-400 mt-1">${event.notes}</div>` : ''}
+                    <div class="flex justify-end mt-2">
+                        <button class="text-xs text-gray-400 hover:text-white mr-2 edit-event" data-id="${event.id}">
+                            <i class="fas fa-edit mr-1"></i> Edit
+                        </button>
+                        <button class="text-xs text-red-400 hover:text-red-300 delete-event" data-id="${event.id}">
+                            <i class="fas fa-trash mr-1"></i> Delete
+                        </button>
+                    </div>
+                `;
+
+                eventsList.appendChild(eventElement);
+            });
+
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-event').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const eventId = btn.dataset.id;
+                    editEconomicEvent(eventId);
+                });
+            });
+
+            document.querySelectorAll('.delete-event').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const eventId = btn.dataset.id;
+                    deleteEconomicEvent(eventId);
+                });
+            });
+        }
+
+        function editEconomicEvent(eventId) {
+            const event = economicEvents.find(e => e.id === eventId);
+            if (!event) return;
+
+            // Fill the form with event data
+            const eventDate = new Date(event.date);
+            const formattedDate = eventDate.toISOString().split('T')[0];
+
+            document.getElementById('eventDate').value = formattedDate;
+            document.getElementById('eventTime').value = event.time || '';
+            document.getElementById('eventName').value = event.name;
+            document.getElementById('eventImportance').value = event.importance || 'none';
+            document.getElementById('eventCurrency').value = event.currency || '';
+            document.getElementById('eventNotes').value = event.notes || '';
+
+            // Store the event ID in the form
+            eventForm.dataset.editingId = eventId;
+
+            // Show the modal
+            eventModal.classList.remove('hidden');
+        }
+
+        function deleteEconomicEvent(eventId) {
+            if (confirm('Are you sure you want to delete this event?')) {
+                economicEvents = economicEvents.filter(e => e.id !== eventId);
+                localStorage.setItem('economicEvents', JSON.stringify(economicEvents));
+                renderEventsForDate(selectedDate);
+                renderCalendar();
+            }
+        }
+
+        // Month navigation
+        prevMonthBtn.addEventListener('click', () => {
+            if (currentMonth === 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else {
+                currentMonth--;
+            }
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', () => {
+            if (currentMonth === 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else {
+                currentMonth++;
+            }
+            renderCalendar();
+        });
+
+        // Add event button
+        addEventBtn.addEventListener('click', () => {
+            // Reset form and set default date to selected date
+            eventForm.reset();
+            delete eventForm.dataset.editingId;
+
+            const formattedDate = selectedDate.toISOString().split('T')[0];
+            document.getElementById('eventDate').value = formattedDate;
+
+            // Show the modal
+            eventModal.classList.remove('hidden');
+        });
+
+        // Close event modal
+        closeEventModal.addEventListener('click', () => {
+            eventModal.classList.add('hidden');
+        });
+
+        cancelEvent.addEventListener('click', () => {
+            eventModal.classList.add('hidden');
+        });
+
+        // Save event
+        eventForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const name = document.getElementById('eventName').value;
+            const importance = document.getElementById('eventImportance').value;
+            const currency = document.getElementById('eventCurrency').value;
+            const notes = document.getElementById('eventNotes').value;
+
+            const event = {
+                id: eventForm.dataset.editingId || Date.now().toString(),
+                date,
+                time,
+                name,
+                importance,
+                currency,
+                notes
+            };
+
+            if (eventForm.dataset.editingId) {
+                // Update existing event
+                const index = economicEvents.findIndex(e => e.id === eventForm.dataset.editingId);
+                if (index !== -1) {
+                    economicEvents[index] = event;
+                }
+            } else {
+                // Add new event
+                economicEvents.push(event);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('economicEvents', JSON.stringify(economicEvents));
+
+            // Update UI
+            renderCalendar();
+            renderEventsForDate(selectedDate);
+
+            // Close modal
+            eventModal.classList.add('hidden');
+        });
+
+        // Set up chart tab switching
+        function setupChartTabs() {
+            chartTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    chartTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    // Hide all containers
+                    chartContainers.forEach(c => c.classList.add('hidden'));
+                    // Show selected container
+                    const chartType = tab.dataset.chart;
+                    document.getElementById(`${chartType}-chart-container`).classList.remove('hidden');
+                });
+            });
+        }
+
+        // Set up view chart tab switching
+        function setupViewChartTabs() {
+            viewChartTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    viewChartTabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    // Hide all containers
+                    viewChartContainers.forEach(c => c.classList.add('hidden'));
+                    // Show selected container
+                    const chartType = tab.dataset.chart;
+                    document.getElementById(`view-${chartType}-chart-container`).class.classList.remove('hidden');
+                });
+            });
+        }
+
+        // Set up image URL previews
+        function setupImagePreviews() {
+            document.getElementById('entryH1ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'h1-preview-container');
+            });
+
+            document.getElementById('entryM15ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'm15-preview-container');
+            });
+
+            document.getElementById('entryM5ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'm5-preview-container');
+            });
+        }
+
+        function updateImagePreview(url, containerId) {
+            const container = document.getElementById(containerId);
+            if (url && isValidUrl(url)) {
+                container.innerHTML = `<img src="${url}" alt="Chart preview" class="max-h-full max-w-full object-contain">`;
+            } else {
+                container.innerHTML = `<p class="text-gray-500 text-sm">${containerId.replace('-preview-container', '').toUpperCase()} chart preview will appear here</p>`;
+            }
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        // Set up import/export functionality
+        function setupImportExport() {
+            importBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        if (Array.isArray(importedData)) {
+                            entries = importedData;
+                            localStorage.setItem('priceActionJournal', JSON.stringify(entries));
+                            renderEntries();
+                            updateTagFilters();
+                            alert('Data imported successfully!');
+                        } else {
+                            alert('Invalid data format. Please import a valid JSON file.');
+                        }
+                    } catch (error) {
+                        alert('Error parsing JSON file. Please check the file format.');
+                        console.error(error);
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            exportBtn.addEventListener('click', () => {
+                if (entries.length === 0) {
+                    alert('No entries to export.');
+                    return;
+                }
+
+                const dataStr = JSON.stringify(entries, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+                const exportFileDefaultName = `price-action-journal-${new Date().toISOString().slice(0, 10)}.json`;
+
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            });
+        }
+
+        // Set default date and time for new entries (converted to EST)
+        function setDefaultDateTime() {
+            const now = new Date();
+            // Convert to EST (UTC-5)
+            const estOffset = -5 * 60;
+            now.setMinutes(now.getMinutes() + now.getTimezoneOffset() + estOffset);
+
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            document.getElementById('entryDateTime').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            // Set session based on current EST hour
+            const estHour = now.getHours();
+            let session = '';
+
+            if (estHour >= 18 || estHour < 0) {
+                session = 'C1';
+            } else if (estHour >= 0 && estHour < 6) {
+                session = 'C2';
+            } else if (estHour >= 6 && estHour < 12) {
+                session = 'C3';
+            } else {
+                session = 'C4';
+            }
+
+            document.getElementById('entrySession').value = session;
+        }
+
+        // New Entry Modal
+        newEntryBtn.addEventListener('click', () => {
+            currentEditingId = null;
+            entryForm.reset();
+            tagsContainer.innerHTML = '';
+
+            // Reset chart URLs and previews
+            document.getElementById('entryH1ImageUrl').value = '';
+            document.getElementById('entryM15ImageUrl').value = '';
+            document.getElementById('entryM5ImageUrl').value = '';
+            document.getElementById('entryH1Notes').value = '';
+            document.getElementById('entryM15Notes').value = '';
+            document.getElementById('entryM5Notes').value = '';
+            document.getElementById('h1-preview-container').innerHTML = '<p class="text-gray-500 text-sm">H1 chart preview will appear here</p>';
+            document.getElementById('m15-preview-container').innerHTML = '<p class="text-gray-500 text-sm">M15 chart preview will appear here</p>';
+            document.getElementById('m5-preview-container').innerHTML = '<p class="text-gray-500 text-sm">M5/M2 chart preview will appear here</p>';
+
+            // Set default date/time and session
+            setDefaultDateTime();
+
+            // Show the modal
+            entryModal.classList.remove('hidden');
+        });
+
+        // Close Modal
+        closeModal.addEventListener('click', () => {
+            entryModal.classList.add('hidden');
+        });
+
+        cancelEntry.addEventListener('click', () => {
+            entryModal.classList.add('hidden');
+        });
+
+        // Close View Modal
+        closeViewModal.addEventListener('click', () => {
+            viewEntryModal.classList.add('hidden');
+        });
+
+        // Tag Input Functionality
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && tagInput.value.trim() !== '') {
+                e.preventDefault();
+                addTag(tagInput.value.trim());
+                tagInput.value = '';
+            }
+        });
+
+        function addTag(tagText) {
+            if (!tagsContainer.querySelector(`[data-tag="${tagText}"]`)) {
+                const tag = document.createElement('div');
+                tag.className = 'tag bg-dark-700 text-gray-200 px-2 py-1 rounded text-sm flex items-center';
+                tag.dataset.tag = tagText;
+
+                tag.innerHTML = `
+                    ${tagText}
+                    <span class="tag-remove ml-1 cursor-pointer" onclick="removeTag(this)">
+                        <i class="fas fa-times text-xs"></i>
+                    </span>
+                `;
+
+                tagsContainer.appendChild(tag);
+            }
+        }
+
+        function removeTag(element) {
+            const tag = element.closest('.tag');
+            tag.remove();
+        }
+
+        // Save Entry
+        entryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const dateTime = document.getElementById('entryDateTime').value;
+            const market = document.getElementById('entryMarket').value;
+            const session = document.getElementById('entrySession').value;
+            const symbol = document.getElementById('entrySymbol').value;
+            const title = document.getElementById('entryTitle').value;
+            const notes = document.getElementById('entryNotes').value;
+            const h1ImageUrl = document.getElementById('entryH1ImageUrl').value;
+            const m15ImageUrl = document.getElementById('entryM15ImageUrl').value;
+            const m5ImageUrl = document.getElementById('entryM5ImageUrl').value;
+            const h1Notes = document.getElementById('entryH1Notes').value;
+            const m15Notes = document.getElementById('entryM15Notes').value;
+            const m5Notes = document.getElementById('entryM5Notes').value;
+
+            const tags = Array.from(tagsContainer.querySelectorAll('.tag')).map(tag => tag.dataset.tag);
+
+            const entry = {
+                id: currentEditingId || Date.now().toString(),
+                dateTime,
+                market,
+                session,
+                symbol,
+                title,
+                notes,
+                h1ImageUrl,
+                m15ImageUrl,
+                m5ImageUrl,
+                h1Notes,
+                m15Notes,
+                m5Notes,
+                tags
+            };
+
+            if (currentEditingId) {
+                // Update existing entry
+                const index = entries.findIndex(e => e.id === currentEditingId);
+                if (index !== -1) {
+                    entries[index] = entry;
+                }
+            } else {
+                // Add new entry
+                entries.unshift(entry);
+            }
+
+            // Save to localStorage
+            localStorage.setItem('priceActionJournal', JSON.stringify(entries));
+
+            // Update UI
+            renderEntries();
+            updateTagFilters();
+
+            // Close modal
+            entryModal.classList.add('hidden');
+        });
+
+        // Render Entries
+        function renderEntries(filteredEntries = null) {
+            const entriesToRender = filteredEntries || filterEntries();
+
+            if (entriesToRender.length === 0) {
+                entriesContainer.innerHTML = noEntriesMessage.outerHTML;
+                document.getElementById('entryCount').textContent = '0 entries';
+                return;
+            }
+
+            entriesContainer.innerHTML = '';
+            document.getElementById('entryCount').textContent = `${entriesToRender.length} ${entriesToRender.length === 1 ? 'entry' : 'entries'}`;
+
+            entriesToRender.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'journal-entry bg-dark-800 p-4 rounded-lg shadow-sm border border-dark-700 cursor-pointer fade-in';
+                entryElement.dataset.id = entry.id;
+
+                const date = new Date(entry.dateTime);
+                // Convert to EST for display
+                const estOffset = -5 * 60;
+                date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + estOffset);
+
+                const formattedDate = date.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                const marketIcon = getMarketIcon(entry.market);
+
+                entryElement.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-medium text-white">${entry.title}</h3>
+                        <span class="text-xs text-gray-400">${formattedDate} EST</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-400 mb-2">
+                        <span class="mr-3">${marketIcon} ${entry.market.charAt(0).toUpperCase() + entry.market.slice(1)}</span>
+                        <span class="mr-3">${entry.symbol}</span>
+                        <span class="bg-dark-700 px-2 py-1 rounded text-xs">${entry.session}</span>
+                    </div>
+                    <div class="text-sm text-gray-300 mb-3 line-clamp-2">${entry.notes}</div>
+                    ${entry.h1ImageUrl || entry.m15ImageUrl || entry.m5ImageUrl ? `
+                        <div class="chart-grid mb-3">
+                            <div class="chart-container">
+                                <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'h1')">
+                                    ${entry.h1ImageUrl ?
+                            `<img src="${entry.h1ImageUrl}" alt="H1 chart" class="max-h-full max-w-full object-contain">` :
+                            `<p class="text-gray-500 text-sm">No H1 chart</p>`}
+                                </div>
+                                <div class="chart-note">${entry.h1Notes || ''}</div>
+                            </div>
+                            <div class="chart-container">
+                                <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'm15')">
+                                    ${entry.m15ImageUrl ?
+                            `<img src="${entry.m15ImageUrl}, alt="M15 chart" class="max-h-full max-w-full object-contain">` :
+                            `<p class="text-gray-500 text-sm">No M15 chart</p>`}
+                                </div>
+                                <div class="chart-note">${entry.m15Notes || ''}</div>
+                            </div>
+                            <div class="chart-container">
+                                <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'm5')">
+                                    ${entry.m5ImageUrl ?
+                            `<img src="${entry.m5ImageUrl}" alt="M5/M2 chart" class="max-h-full max-w-full object-contain">` :
+                            `<p class="text-gray-500 text-sm">No M5/M2 chart</p>`}
+                                </div>
+                                <div class="chart-note">${entry.m5Notes || ''}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div class="flex flex-wrap gap-2">
+                        ${entry.tags.map(tag => `
+                            <span class="bg-dark-700 text-gray-300 px-2 py-1 rounded text-xs">${tag}</span>
+                        `).join('')}
+                    </div>
+                `;
+
+                entryElement.addEventListener('click', () => viewEntry(entry.id));
+                entriesContainer.appendChild(entryElement);
+            });
+        }
+
+        // Open chart URL from view modal
+        function openChartUrl(chartType) {
+            const entry = entries.find(e => e.id === currentEditingId);
+            if (!entry) return;
+
+            const url = entry[`${chartType}ImageUrl`];
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // Open chart URL from entry list
+        function openChartUrlFromEntry(entryId, chartType) {
+            const entry = entries.find(e => e.id === entryId);
+            if (!entry) return;
+
+            const url = entry[`${chartType}ImageUrl`];
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // Filter entries based on active filters
+        function filterEntries() {
+            return entries.filter(entry => {
+                // Filter by session if set
+                if (activeFilters.session && entry.session !== activeFilters.session) {
+                    return false;
+                }
+
+                // Filter by market if set
+                if (activeFilters.market && entry.market !== activeFilters.market) {
+                    return false;
+                }
+
+                // Filter by tags if any are selected
+                if (activeFilters.tags.length > 0) {
+                    const hasAllTags = activeFilters.tags.every(tag =>
+                        entry.tags.includes(tag)
+                    );
+                    if (!hasAllTags) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+        }
+
+        function getMarketIcon(market) {
+            const icons = {
+                forex: 'fas fa-globe-europe',
+                stocks: 'fas fa-chart-bar',
+                crypto: 'fab fa-bitcoin',
+                indices: 'fas fa-chart-area',
+                commodities: 'fas fa-gas-pump'
+            };
+            return `<i class="${icons[market] || 'fas fa-chart-line'} text-blue-400"></i>`;
+        }
+
+        // View Entry
+        function viewEntry(id) {
+            const entry = entries.find(e => e.id === id);
+            if (!entry) return;
+
+            currentEditingId = id;
+
+            const date = new Date(entry.dateTime);
+            // Convert to EST for display
+            const estOffset = -5 * 60;
+            date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + estOffset);
+
+            const formattedDate = date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            document.getElementById('viewEntryTitle').textContent = entry.title;
+            document.getElementById('viewEntryDateTime').textContent = formattedDate + ' EST';
+            document.getElementById('viewEntryMarket').textContent = entry.market.charAt(0).toUpperCase() + entry.market.slice(1);
+            document.getElementById('viewEntrySession').textContent = entry.session;
+            document.getElementById('viewEntrySymbol').textContent = entry.symbol;
+            document.getElementById('viewEntryNotes').textContent = entry.notes;
+
+            // Set up chart images and notes
+            const h1Container = document.getElementById('view-h1-preview-container');
+            const m15Container = document.getElementById('view-m15-preview-container');
+            const m5Container = document.getElementById('view-m5-preview-container');
+            const h1Note = document.getElementById('view-h1-note');
+            const m15Note = document.getElementById('view-m15-note');
+            const m5Note = document.getElementById('view-m5-note');
+
+            h1Container.innerHTML = entry.h1ImageUrl
+                ? `<img src="${entry.h1ImageUrl}" alt="H1 chart" class="max-h-full max-w-full object-contain">`
+                : '<p class="text-gray-500 text-sm">No H1 chart available</p>';
+            h1Note.textContent = entry.h1Notes || '';
+
+            m15Container.innerHTML = entry.m15ImageUrl
+                ? `<img src="${entry.m15ImageUrl}" alt="M15 chart" class="max-h-full max-w-full object-contain">`
+                : '<p class="text-gray-500 text-sm">No M15 chart available</p>';
+            m15Note.textContent = entry.m15Notes || '';
+
+            m5Container.innerHTML = entry.m5ImageUrl
+                ? `<img src="${entry.m5ImageUrl}" alt="M5/M2 chart" class="max-h-full max-w-full object-contain">`
+                : '<p class="text-gray-500 text-sm">No M5/M2 chart available</p>';
+            m5Note.textContent = entry.m5Notes || '';
+
+            // Set up tags
+            const tagsContainer = document.getElementById('viewEntryTags');
+            tagsContainer.innerHTML = '';
+
+            entry.tags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = 'bg-dark-700 text-gray-300 px-2 py-1 rounded text-xs';
+                tagElement.textContent = tag;
+                tagsContainer.appendChild(tagElement);
+            });
+
+            viewEntryModal.classList.remove('hidden');
+        }
+
+        // Delete Entry
+        deleteEntryBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                entries = entries.filter(e => e.id !== currentEditingId);
+                localStorage.setItem('priceActionJournal', JSON.stringify(entries));
+                renderEntries();
+                updateTagFilters();
+                viewEntryModal.classList.add('hidden');
+            }
+        });
+
+        // Edit Entry
+        editEntryBtn.addEventListener('click', () => {
+            const entry = entries.find(e => e.id === currentEditingId);
+            if (!entry) return;
+
+            viewEntryModal.classList.add('hidden');
+
+            // Fill the form with entry data
+            document.getElementById('entryDateTime').value = entry.dateTime;
+            document.getElementById('entryMarket').value = entry.market;
+            document.getElementById('entrySession').value = entry.session;
+            document.getElementById('entrySymbol').value = entry.symbol;
+            document.getElementById('entryTitle').value = entry.title;
+            document.getElementById('entryNotes').value = entry.notes;
+            document.getElementById('entryH1ImageUrl').value = entry.h1ImageUrl || '';
+            document.getElementById('entryM15ImageUrl').value = entry.m15ImageUrl || '';
+            document.getElementById('entryM5ImageUrl').value = entry.m5ImageUrl || '';
+            document.getElementById('entryH1Notes').value = entry.h1Notes || '';
+            document.getElementById('entryM15Notes').value = entry.m15Notes || '';
+            document.getElementById('entryM5Notes').value = entry.m5Notes || '';
+
+            // Update image previews
+            updateImagePreview(entry.h1ImageUrl, 'h1-preview-container');
+            updateImagePreview(entry.m15ImageUrl, 'm15-preview-container');
+            updateImagePreview(entry.m5ImageUrl, 'm5-preview-container');
+
+            // Add tags
+            tagsContainer.innerHTML = '';
+            entry.tags.forEach(tag => addTag(tag));
+
+            // Show the edit modal
+            entryModal.classList.remove('hidden');
+        });
+
+        // Update tag filters in sidebar
+        function updateTagFilters() {
+            // Collect all unique tags from entries
+            allTags = [...new Set(entries.flatMap(entry => entry.tags))];
+
+            tagFilters.innerHTML = '';
+
+            if (allTags.length === 0) {
+                tagFilters.innerHTML = '<p class="text-sm text-gray-500">No tags yet</p>';
+                return;
+            }
+
+            allTags.forEach(tag => {
+                const tagElement = document.createElement('span');
+                tagElement.className = `cursor-pointer ${activeFilters.tags.includes(tag) ? 'bg-blue-500 text-white' : 'bg-dark-700 text-gray-300'} px-2 py-1 rounded text-xs`;
+                tagElement.textContent = tag;
+                tagElement.dataset.tag = tag;
+                tagElement.addEventListener('click', () => toggleTagFilter(tag));
+                tagFilters.appendChild(tagElement);
+            });
+        }
+
+        // Toggle tag filter
+        function toggleTagFilter(tag) {
+            const index = activeFilters.tags.indexOf(tag);
+            if (index === -1) {
+                activeFilters.tags.push(tag);
+            } else {
+                activeFilters.tags.splice(index, 1);
+            }
+
+            updateTagFilters();
+            renderEntries();
+        }
+
+        // Apply filters from time range buttons
+        document.querySelectorAll('.time-range-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Toggle active state
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    activeFilters.session = null;
+                } else {
+                    document.querySelectorAll('.time-range-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    activeFilters.session = btn.dataset.range;
+                }
+
+                renderEntries();
+            });
+        });
+
+        // Apply market filter
+        document.getElementById('marketFilter').addEventListener('change', (e) => {
+            activeFilters.market = e.target.value || null;
+            renderEntries();
+        });
+
+        // Clear all filters
+        clearFilters.addEventListener('click', () => {
+            // Reset all filters
+            activeFilters = {
+                session: null,
+                market: null,
+                tags: []
+            };
+
+            // Reset UI elements
+            document.querySelectorAll('.time-range-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('marketFilter').value = '';
+
+            // Update and render
+            updateTagFilters();
+            renderEntries();
+        });
+
+        // Make removeTag function available globally
+        window.removeTag = removeTag;
+        window.openChartUrlFromEntry = openChartUrlFromEntry;
+    </script>
+</body>
+
+</html>
