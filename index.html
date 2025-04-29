@@ -323,7 +323,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .lg\:col-span-1, .lg\:col-span-3 {
+            .lg\:col-span-1,
+            .lg\:col-span-3 {
                 grid-column: span 1;
             }
 
@@ -389,6 +390,16 @@
                     <h2 class="text-lg font-semibold mb-4 text-white">
                         <i class="fas fa-filter mr-2 text-blue-400"></i>Filters
                     </h2>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Plage de dates</label>
+                        <div class="flex space-x-2">
+                            <input type="date" id="startDateFilter" class="bg-dark-700 text-white rounded p-2 w-1/2"
+                                placeholder="Date début">
+                            <input type="date" id="endDateFilter" class="bg-dark-700 text-white rounded p-2 w-1/2"
+                                placeholder="Date fin">
+                        </div>
+                    </div>
 
                     <div class="mb-4 relative">
                         <label class="block text-sm font-medium text-gray-300 mb-2">Market</label>
@@ -528,29 +539,55 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-1">Market</label>
-                            <div class="dropdown-select">
-                                <select id="entryMarket"
-                                    class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left" required>
-                                    <option value="">Select Market</option>
-                                    <option value="forex">Forex</option>
-                                    <option value="stocks">Stocks</option>
-                                    <option value="crypto">Cryptocurrency</option>
-                                    <option value="indices">Indices</option>
-                                    <option value="commodities">Commodities</option>
-                                </select>
+                            <div class="dropdown-select relative">
+                                <button type="button" id="entryMarketDropdown"
+                                    class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left">
+                                    <span id="entryMarketDisplay">Select Market</span>
+                                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"></i>
+                                </button>
+                                <div id="entryMarketMenu"
+                                    class="dropdown-menu hidden absolute z-10 w-full mt-1 bg-dark-800 border border-dark-700 rounded-lg shadow-lg py-1">
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer" data-value="">
+                                        <i class="fas fa-globe text-blue-400 mr-2"></i>All Markets</div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="forex"><i class="fas fa-globe-europe text-blue-400 mr-2"></i>Forex
+                                    </div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="stocks"><i class="fas fa-chart-bar text-green-400 mr-2"></i>Stocks
+                                    </div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="crypto"><i
+                                            class="fab fa-bitcoin text-yellow-400 mr-2"></i>Cryptocurrency</div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="indices"><i
+                                            class="fas fa-chart-area text-purple-400 mr-2"></i>Indices</div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="commodities"><i
+                                            class="fas fa-gas-pump text-orange-400 mr-2"></i>Commodities</div>
+                                </div>
+                                <input type="hidden" id="entryMarket" name="entryMarket" required>
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-1">Session</label>
-                            <div class="dropdown-select">
-                                <select id="entrySession"
-                                    class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left" required>
-                                    <option value="">Select Session</option>
-                                    <option value="C1">C1: 6PM-12AM EST</option>
-                                    <option value="C2">C2: 12AM-6AM EST</option>
-                                    <option value="C3">C3: 6AM-12PM EST</option>
-                                    <option value="C4">C4: 12PM-6PM EST</option>
-                                </select>
+                            <div class="dropdown-select relative">
+                                <button type="button" id="entrySessionDropdown"
+                                    class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left">
+                                    <span id="entrySessionDisplay">Select Session</span>
+                                    <i class="fas fa-chevron-down text-xs transition-transform duration-200"></i>
+                                </button>
+                                <div id="entrySessionMenu"
+                                    class="dropdown-menu hidden absolute z-10 w-full mt-1 bg-dark-800 border border-dark-700 rounded-lg shadow-lg py-1">
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="C1">C1: 6PM-12AM EST</div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="C2">C2: 12AM-6AM EST</div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="C3">C3: 6AM-12PM EST</div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="C4">C4: 12PM-6PM EST</div>
+                                </div>
+                                <input type="hidden" id="entrySession" name="entrySession" required>
                             </div>
                         </div>
                     </div>
@@ -774,7 +811,8 @@
                         <label class="block text-sm font-medium text-gray-300 mb-1">Importance</label>
                         <div class="dropdown-select">
                             <select id="eventImportance"
-                                class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left" required>
+                                class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left"
+                                required>
                                 <option value="high">High</option>
                                 <option value="medium">Medium</option>
                                 <option value="low">Low</option>
@@ -822,7 +860,9 @@
         let activeFilters = {
             session: null,
             market: null,
-            tags: []
+            tags: [],
+            startDate: null,
+            endDate: null
         };
 
         // Economic events data
@@ -849,6 +889,8 @@
         const exportBtn = document.getElementById('exportBtn');
         const deleteAllBtn = document.getElementById('deleteAllBtn');
         const fileInput = document.getElementById('fileInput');
+        const startDateFilter = document.getElementById('startDateFilter');
+        const endDateFilter = document.getElementById('endDateFilter');
 
         // Calendar elements
         const prevMonthBtn = document.getElementById('prevMonth');
@@ -895,6 +937,9 @@
 
             // Initialize custom dropdowns
             setupCustomDropdowns();
+
+            // Initialize dropdowns for New Entry Modal
+            setupEntryModalDropdowns();
         });
 
         // Delete all entries
@@ -972,6 +1017,62 @@
                 document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
                     toggle.classList.remove('open');
                 });
+            });
+        }
+
+        // --- Fix dropdown open/close for New Entry Modal ---
+        function setupEntryModalDropdowns() {
+            // Market
+            entryMarketDropdown.addEventListener('click', function (e) {
+                e.stopPropagation();
+                // Ferme tous les autres dropdowns
+                document.querySelectorAll('.dropdown-menu').forEach(m => {
+                    if (m !== entryMarketMenu) m.classList.add('hidden');
+                });
+                document.querySelectorAll('.dropdown-toggle').forEach(t => {
+                    if (t !== entryMarketDropdown) t.classList.remove('open');
+                });
+                entryMarketMenu.classList.toggle('hidden');
+                entryMarketDropdown.classList.toggle('open');
+            });
+            entryMarketMenu.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    entryMarketDisplay.innerHTML = item.innerHTML;
+                    entryMarketInput.value = item.dataset.value;
+                    entryMarketMenu.classList.add('hidden');
+                    entryMarketDropdown.classList.remove('open');
+                });
+            });
+            // Session
+            entrySessionDropdown.addEventListener('click', function (e) {
+                e.stopPropagation();
+                document.querySelectorAll('.dropdown-menu').forEach(m => {
+                    if (m !== entrySessionMenu) m.classList.add('hidden');
+                });
+                document.querySelectorAll('.dropdown-toggle').forEach(t => {
+                    if (t !== entrySessionDropdown) t.classList.remove('open');
+                });
+                entrySessionMenu.classList.toggle('hidden');
+                entrySessionDropdown.classList.toggle('open');
+            });
+            entrySessionMenu.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function () {
+                    entrySessionDisplay.textContent = item.textContent;
+                    entrySessionInput.value = item.dataset.value;
+                    entrySessionMenu.classList.add('hidden');
+                    entrySessionDropdown.classList.remove('open');
+                });
+            });
+            // Ferme les dropdowns si clic en dehors
+            document.addEventListener('click', function (e) {
+                if (!entryMarketDropdown.contains(e.target)) {
+                    entryMarketMenu.classList.add('hidden');
+                    entryMarketDropdown.classList.remove('open');
+                }
+                if (!entrySessionDropdown.contains(e.target)) {
+                    entrySessionMenu.classList.add('hidden');
+                    entrySessionDropdown.classList.remove('open');
+                }
             });
         }
 
@@ -1411,6 +1512,14 @@
             viewEntryModal.classList.add('hidden');
         });
 
+        // Listen to date filter changes
+        startDateFilter.addEventListener('change', () => {
+            activeFilters.startDate = startDateFilter.value ? new Date(startDateFilter.value) : null;
+        });
+        endDateFilter.addEventListener('change', () => {
+            activeFilters.endDate = endDateFilter.value ? new Date(endDateFilter.value) : null;
+        });
+
         // Tag Input Functionality
         tagInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && tagInput.value.trim() !== '') {
@@ -1609,6 +1718,22 @@
         // Filter entries based on active filters
         function filterEntries() {
             return entries.filter(entry => {
+                // Filter by date range if set
+                if (activeFilters.startDate) {
+                    const entryDate = new Date(entry.dateTime);
+                    if (entryDate < activeFilters.startDate) {
+                        return false;
+                    }
+                }
+                if (activeFilters.endDate) {
+                    const entryDate = new Date(entry.dateTime);
+                    // Include the whole end day
+                    const endDate = new Date(activeFilters.endDate);
+                    endDate.setHours(23, 59, 59, 999);
+                    if (entryDate > endDate) {
+                        return false;
+                    }
+                }
                 // Filter by session if set
                 if (activeFilters.session && entry.session !== activeFilters.session) {
                     return false;
@@ -1794,11 +1919,15 @@
             activeFilters = {
                 session: null,
                 market: null,
-                tags: []
+                tags: [],
+                startDate: null,
+                endDate: null
             };
 
             // Reset UI elements
             document.querySelector('.dropdown-item[data-value=""]').click();
+            startDateFilter.value = '';
+            endDateFilter.value = '';
 
             // Update and render
             updateTagFilters();
@@ -1808,6 +1937,60 @@
         // Make removeTag function available globally
         window.removeTag = removeTag;
         window.openChartUrlFromEntry = openChartUrlFromEntry;
+
+        // Dropdown for Market in New Entry Modal
+        const entryMarketDropdown = document.getElementById('entryMarketDropdown');
+        const entryMarketMenu = document.getElementById('entryMarketMenu');
+        const entryMarketDisplay = document.getElementById('entryMarketDisplay');
+        const entryMarketInput = document.getElementById('entryMarket');
+
+        entryMarketDropdown.addEventListener('click', function (e) {
+            e.stopPropagation();
+            entryMarketMenu.classList.toggle('hidden');
+            entryMarketDropdown.classList.toggle('open');
+        });
+        entryMarketMenu.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function () {
+                entryMarketDisplay.innerHTML = item.innerHTML;
+                entryMarketInput.value = item.dataset.value;
+                entryMarketMenu.classList.add('hidden');
+                entryMarketDropdown.classList.remove('open');
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!entryMarketDropdown.contains(e.target)) {
+                entryMarketMenu.classList.add('hidden');
+                entryMarketDropdown.classList.remove('open');
+            }
+        });
+
+        // Dropdown for Session in New Entry Modal
+        const entrySessionDropdown = document.getElementById('entrySessionDropdown');
+        const entrySessionMenu = document.getElementById('entrySessionMenu');
+        const entrySessionDisplay = document.getElementById('entrySessionDisplay');
+        const entrySessionInput = document.getElementById('entrySession');
+
+        entrySessionDropdown.addEventListener('click', function (e) {
+            e.stopPropagation();
+            entrySessionMenu.classList.toggle('hidden');
+            entrySessionDropdown.classList.toggle('open');
+        });
+        entrySessionMenu.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function () {
+                entrySessionDisplay.textContent = item.textContent;
+                entrySessionInput.value = item.dataset.value;
+                entrySessionMenu.classList.add('hidden');
+                entrySessionDropdown.classList.remove('open');
+            });
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!entrySessionDropdown.contains(e.target)) {
+                entrySessionMenu.classList.add('hidden');
+                entrySessionDropdown.classList.remove('open');
+            }
+        });
     </script>
 </body>
 
