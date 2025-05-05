@@ -543,7 +543,7 @@
                 <div class="bg-dark-800 p-4 rounded-lg shadow-sm mb-4 border border-dark-700">
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-white">
-                            Recent Observations
+                            <i class="fas fa-book-open mr-2 text-blue-400"></i>Recent Observations
                         </h2>
                         <div class="text-sm text-gray-400" id="entryCount">0 entries</div>
                     </div>
@@ -631,6 +631,8 @@
                                         data-value="C3">C3: 6AM-12PM EST</div>
                                     <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
                                         data-value="C4">C4: 12PM-6PM EST</div>
+                                    <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
+                                        data-value="Analysis">Analysis (weekend/hebdo)</div>
                                 </div>
                                 <input type="hidden" id="entrySession" name="entrySession" required>
                             </div>
@@ -763,12 +765,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <h4 class="text-sm font-medium text-gray-300 mb-1">Observation Notes</h4>
-                    <div class="bg-dark-700 p-3 rounded text-gray-200" id="viewEntryNotes"></div>
-                </div>
-
-                <div class="mb-4">
-                    <h4 class="text-sm font-medium text-gray-300 mb-2">Charts</h4>
+                    <h4 class="text-sm font-medium text-gray-300 mb-1">Charts</h4>
                     <div class="chart-grid">
                         <div class="chart-container">
                             <div class="chart-preview" id="view-h1-chart"
@@ -806,6 +803,11 @@
                 <div class="mb-4">
                     <h4 class="text-sm font-medium text-gray-300 mb-1">Tags</h4>
                     <div class="flex flex-wrap gap-2" id="viewEntryTags"></div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium text-gray-300 mb-1">Observation Notes</h4>
+                    <div class="bg-dark-700 p-3 rounded text-gray-200" id="viewEntryNotes"></div>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4">
@@ -1453,14 +1455,27 @@
                     try {
                         const importedData = JSON.parse(event.target.result);
                         if (Array.isArray(importedData)) {
+                            // Ancien format: juste entries
                             entries = importedData;
-                            localStorage.setItem('priceActionJournal', JSON.stringify(entries));
-                            renderEntries();
-                            updateTagFilters();
-                            alert('Data imported successfully!');
+                            alert('Data imported successfully! (entries only)');
+                        } else if (importedData.entries && Array.isArray(importedData.entries)) {
+                            entries = importedData.entries;
+                            if (Array.isArray(importedData.EconCal)) {
+                                economicEvents = importedData.EconCal;
+                                alert('Data imported successfully! (entries + economic events)');
+                            } else {
+                                alert('Data imported successfully! (entries only, economic events unchanged)');
+                            }
                         } else {
                             alert('Invalid data format. Please import a valid JSON file.');
+                            return;
                         }
+                        localStorage.setItem('priceActionJournal', JSON.stringify(entries));
+                        localStorage.setItem('economicEvents', JSON.stringify(economicEvents));
+                        renderEntries();
+                        updateTagFilters();
+                        renderCalendar();
+                        renderEventsForDate(selectedDate);
                     } catch (error) {
                         alert('Error parsing JSON file. Please check the file format.');
                         console.error(error);
@@ -1470,16 +1485,17 @@
             });
 
             exportBtn.addEventListener('click', () => {
-                if (entries.length === 0) {
-                    alert('No entries to export.');
+                if (entries.length === 0 && economicEvents.length === 0) {
+                    alert('No entries or economic events to export.');
                     return;
                 }
-
-                const dataStr = JSON.stringify(entries, null, 2);
+                const dataToExport = {
+                    entries: entries,
+                    EconCal: economicEvents
+                };
+                const dataStr = JSON.stringify(dataToExport, null, 2);
                 const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
                 const exportFileDefaultName = `price-action-journal-${new Date().toISOString().slice(0, 10)}.json`;
-
                 const linkElement = document.createElement('a');
                 linkElement.setAttribute('href', dataUri);
                 linkElement.setAttribute('download', exportFileDefaultName);
@@ -1658,8 +1674,34 @@
 
         // Render Entries
         function renderEntries(filteredEntries = null) {
-            const sessionBgColors = { C1: '#a3a3a3', C2: '#fb7185', C3: '#22c55e', C4: '#3b82f6' };
-            const entriesToRender = filteredEntries || filterEntries();
+            const sessionBgColors = { C1: '#a3a3a3', C2: '#fb7185', C3: '#22c55e', C4: '#3b82f6', Analysis: '#fb923c' };
+            let entriesToRender;
+
+            // Détecter si un filtre est actif
+            const filtersActive = !!(
+                activeFilters.session ||
+                activeFilters.market ||
+                (activeFilters.tags && activeFilters.tags.length > 0) ||
+                activeFilters.startDate ||
+                activeFilters.endDate
+            );
+
+            if (filteredEntries) {
+                entriesToRender = filteredEntries;
+            } else if (!filtersActive) {
+                // Aucun filtre actif : n'afficher que les entrées du jour
+                const today = new Date();
+                entriesToRender = entries.filter(entry => {
+                    if (!entry.dateTime) return false;
+                    const entryDate = new Date(entry.dateTime);
+                    return entryDate.getFullYear() === today.getFullYear() &&
+                        entryDate.getMonth() === today.getMonth() &&
+                        entryDate.getDate() === today.getDate();
+                });
+            } else {
+                // Filtres actifs : logique normale
+                entriesToRender = filterEntries();
+            }
 
             if (entriesToRender.length === 0) {
                 entriesContainer.innerHTML = noEntriesMessage.outerHTML;
@@ -1687,7 +1729,9 @@
                     <div class="flex items-center text-sm text-gray-400 mb-2">
                         <span class="mr-3">${marketIcon} ${entry.market.charAt(0).toUpperCase() + entry.market.slice(1)}</span>
                         <span class="mr-3">${entry.symbol}</span>
-                        <span class="bg-dark-700 px-2 py-1 rounded text-xs" style="background:${sessionBgColors[entry.session] || '#94a3b8'};color:#fff;">${entry.session}</span>
+                        <span class="bg-dark-700 px-2 py-1 rounded text-xs" style="background:${sessionBgColors[entry.session] || '#94a3b8'};color:#fff;">
+                            ${entry.session === 'Analysis' ? 'An' : entry.session}
+                        </span>
                     </div>
                     <div class="text-sm text-gray-300 mb-3 line-clamp-2">${entry.notes}</div>
                     ${entry.h1ImageUrl || entry.m15ImageUrl || entry.m5ImageUrl ? `
@@ -1819,10 +1863,10 @@
             document.getElementById('viewEntryDateTime').textContent = formattedDate;
             document.getElementById('viewEntryMarket').innerHTML = `<span style="font-weight:bold;">${entry.market.charAt(0).toUpperCase() + entry.market.slice(1)}</span>`;
 
-            const sessionColors = { C1: '#a3a3a3', C2: '#fb7185', C3: '#22c55e', C4: '#3b82f6' };
+            const sessionColors = { C1: '#a3a3a3', C2: '#fb7185', C3: '#22c55e', C4: '#3b82f6', Analysis: '#fb923c' };
             const session = entry.session;
             const sessionColor = sessionColors[session] || '#94a3b8';
-            document.getElementById('viewEntrySession').innerHTML = `<span style="background:${sessionColor};color:#fff;padding:0.2em 0.7em;border-radius:0.5em;">${session}</span>`;
+            document.getElementById('viewEntrySession').innerHTML = `<span style="background:${sessionColor};color:#fff;padding:0.2em 0.7em;border-radius:0.5em;">${session === 'Analysis' ? 'An' : session}</span>`;
 
             document.getElementById('viewEntrySymbol').textContent = entry.symbol;
             document.getElementById('viewEntryNotes').textContent = entry.notes;
