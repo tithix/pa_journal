@@ -310,6 +310,68 @@
             transform: rotate(180deg);
         }
 
+        /* Event Modal Styles */
+        #eventModal .modal {
+            max-width: 500px;
+        }
+
+        .event-modal-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .event-modal-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        #eventForm input,
+        #eventForm select,
+        #eventForm textarea {
+            width: 100%;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
+            color: white;
+        }
+
+        #eventForm input:focus,
+        #eventForm select:focus,
+        #eventForm textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .event-importance-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .importance-high {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .importance-medium {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .importance-low {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .importance-none {
+            background-color: rgba(100, 116, 139, 0.2);
+            color: #64748b;
+        }
+
         /* Mobile responsive styles */
         @media (max-width: 768px) {
             .container {
@@ -345,6 +407,14 @@
             .modal {
                 width: 95%;
                 max-height: 90vh;
+            }
+
+            #eventModal .modal {
+                max-width: 95%;
+            }
+
+            .event-modal-section {
+                margin-bottom: 1rem;
             }
         }
 
@@ -632,7 +702,7 @@
                                     <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
                                         data-value="C4">C4: 12PM-6PM EST</div>
                                     <div class="dropdown-item px-4 py-2 hover:bg-dark-700 cursor-pointer"
-                                        data-value="Analysis">Analysis (weekend/hebdo)</div>
+                                        data-value="Analysis">Market Analysis</div>
                                 </div>
                                 <input type="hidden" id="entrySession" name="entrySession" required>
                             </div>
@@ -664,55 +734,101 @@
                     <div class="mb-4">
                         <div class="flex border-b border-dark-700 mb-3">
                             <button type="button" class="chart-type-tab active px-4 py-2 rounded-t-lg"
-                                data-chart="h1">H1 Chart</button>
-                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="m15">M15
-                                Chart</button>
-                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="m5">M5/M2
-                                Chart</button>
+                                data-chart="chart1">1</button>
+                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="chart2">2</button>
+                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="chart3">3</button>
+                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="chart4">4</button>
+                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="chart5">5</button>
+                            <button type="button" class="chart-type-tab px-4 py-2 rounded-t-lg" data-chart="chart6">6</button>
                         </div>
 
-                        <div id="h1-chart-container" class="chart-container">
-                            <label class="block text-sm font-medium text-gray-300 mb-1">H1 Chart URL</label>
-                            <input type="url" id="entryH1ImageUrl"
+                        <div id="chart1-chart-container" class="chart-container">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Chart 1 URL</label>
+                            <input type="url" id="entryChart1ImageUrl"
                                 class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
-                                placeholder="https://example.com/h1-chart.png">
+                                placeholder="https://example.com/chart1.png">
                             <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
-                                id="h1-preview-container">
-                                <p class="text-gray-500 text-sm">H1 chart preview will appear here</p>
+                                id="chart1-preview-container">
+                                <p class="text-gray-500 text-sm">Chart 1 preview will appear here</p>
                             </div>
-                            <textarea id="entryH1Notes"
+                            <textarea id="entryChart1Notes"
                                 class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
-                                placeholder="Brief notes about H1 timeframe (e.g. Bullish trend, potential resistance at 1.1200)"
+                                placeholder="Brief notes about Chart 1"
                                 rows="2"></textarea>
                         </div>
 
-                        <div id="m15-chart-container" class="chart-container hidden">
-                            <label class="block text-sm font-medium text-gray-300 mb-1">M15 Chart URL</label>
-                            <input type="url" id="entryM15ImageUrl"
+                        <div id="chart2-chart-container" class="chart-container hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Chart 2 URL</label>
+                            <input type="url" id="entryChart2ImageUrl"
                                 class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
-                                placeholder="https://example.com/m15-chart.png">
+                                placeholder="https://example.com/chart2.png">
                             <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
-                                id="m15-preview-container">
-                                <p class="text-gray-500 text-sm">M15 chart preview will appear here</p>
+                                id="chart2-preview-container">
+                                <p class="text-gray-500 text-sm">Chart 2 preview will appear here</p>
                             </div>
-                            <textarea id="entryM15Notes"
+                            <textarea id="entryChart2Notes"
                                 class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
-                                placeholder="Brief notes about M15 timeframe (e.g. Consolidation pattern, watch for breakout)"
+                                placeholder="Brief notes about Chart 2"
                                 rows="2"></textarea>
                         </div>
 
-                        <div id="m5-chart-container" class="chart-container hidden">
-                            <label class="block text-sm font-medium text-gray-300 mb-1">M5/M2 Chart URL</label>
-                            <input type="url" id="entryM5ImageUrl"
+                        <div id="chart3-chart-container" class="chart-container hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Chart 3 URL</label>
+                            <input type="url" id="entryChart3ImageUrl"
                                 class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
-                                placeholder="https://example.com/m5-chart.png">
+                                placeholder="https://example.com/chart3.png">
                             <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
-                                id="m5-preview-container">
-                                <p class="text-gray-500 text-sm">M5/M2 chart preview will appear here</p>
+                                id="chart3-preview-container">
+                                <p class="text-gray-500 text-sm">Chart 3 preview will appear here</p>
                             </div>
-                            <textarea id="entryM5Notes"
+                            <textarea id="entryChart3Notes"
                                 class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
-                                placeholder="Brief notes about M5/M2 timeframe (e.g. Short-term pullback, potential entry point)"
+                                placeholder="Brief notes about Chart 3"
+                                rows="2"></textarea>
+                        </div>
+
+                        <div id="chart4-chart-container" class="chart-container hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Chart 4 URL</label>
+                            <input type="url" id="entryChart4ImageUrl"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
+                                placeholder="https://example.com/chart4.png">
+                            <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
+                                id="chart4-preview-container">
+                                <p class="text-gray-500 text-sm">Chart 4 preview will appear here</p>
+                            </div>
+                            <textarea id="entryChart4Notes"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
+                                placeholder="Brief notes about Chart 4"
+                                rows="2"></textarea>
+                        </div>
+
+                        <div id="chart5-chart-container" class="chart-container hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Chart 5 URL</label>
+                            <input type="url" id="entryChart5ImageUrl"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
+                                placeholder="https://example.com/chart5.png">
+                            <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
+                                id="chart5-preview-container">
+                                <p class="text-gray-500 text-sm">Chart 5 preview will appear here</p>
+                            </div>
+                            <textarea id="entryChart5Notes"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
+                                placeholder="Brief notes about Chart 5"
+                                rows="2"></textarea>
+                        </div>
+
+                        <div id="chart6-chart-container" class="chart-container hidden">
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Chart 6 URL</label>
+                            <input type="url" id="entryChart6ImageUrl"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white mb-2"
+                                placeholder="https://example.com/chart6.png">
+                            <div class="image-preview-container bg-dark-700 rounded p-2 flex justify-center items-center h-32"
+                                id="chart6-preview-container">
+                                <p class="text-gray-500 text-sm">Chart 6 preview will appear here</p>
+                            </div>
+                            <textarea id="entryChart6Notes"
+                                class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white text-xs mt-2"
+                                placeholder="Brief notes about Chart 6"
                                 rows="2"></textarea>
                         </div>
                     </div>
@@ -768,34 +884,64 @@
                     <h4 class="text-sm font-medium text-gray-300 mb-1">Charts</h4>
                     <div class="chart-grid">
                         <div class="chart-container">
-                            <div class="chart-preview" id="view-h1-chart"
-                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'h1')">
-                                <div id="view-h1-preview-container"
+                            <div class="chart-preview" id="view-chart1-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'chart1')">
+                                <div id="view-chart1-preview-container"
                                     class="w-full h-full flex items-center justify-center">
-                                    <p class="text-gray-500 text-sm">No H1 chart available</p>
+                                    <p class="text-gray-500 text-sm">No Chart 1 available</p>
                                 </div>
                             </div>
-                            <div class="chart-note" id="view-h1-note"></div>
+                            <div class="chart-note" id="view-chart1-note"></div>
                         </div>
                         <div class="chart-container">
-                            <div class="chart-preview" id="view-m15-chart"
-                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'm15')">
-                                <div id="view-m15-preview-container"
+                            <div class="chart-preview" id="view-chart2-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'chart2')">
+                                <div id="view-chart2-preview-container"
                                     class="w-full h-full flex items-center justify-center">
-                                    <p class="text-gray-500 text-sm">No M15 chart available</p>
+                                    <p class="text-gray-500 text-sm">No Chart 2 available</p>
                                 </div>
                             </div>
-                            <div class="chart-note" id="view-m15-note"></div>
+                            <div class="chart-note" id="view-chart2-note"></div>
                         </div>
                         <div class="chart-container">
-                            <div class="chart-preview" id="view-m5-chart"
-                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'm5')">
-                                <div id="view-m5-preview-container"
+                            <div class="chart-preview" id="view-chart3-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'chart3')">
+                                <div id="view-chart3-preview-container"
                                     class="w-full h-full flex items-center justify-center">
-                                    <p class="text-gray-500 text-sm">No M5/M2 chart available</p>
+                                    <p class="text-gray-500 text-sm">No Chart 3 available</p>
                                 </div>
                             </div>
-                            <div class="chart-note" id="view-m5-note"></div>
+                            <div class="chart-note" id="view-chart3-note"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-preview" id="view-chart4-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'chart4')">
+                                <div id="view-chart4-preview-container"
+                                    class="w-full h-full flex items-center justify-center">
+                                    <p class="text-gray-500 text-sm">No Chart 4 available</p>
+                                </div>
+                            </div>
+                            <div class="chart-note" id="view-chart4-note"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-preview" id="view-chart5-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'chart5')">
+                                <div id="view-chart5-preview-container"
+                                    class="w-full h-full flex items-center justify-center">
+                                    <p class="text-gray-500 text-sm">No Chart 5 available</p>
+                                </div>
+                            </div>
+                            <div class="chart-note" id="view-chart5-note"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-preview" id="view-chart6-chart"
+                                onclick="event.stopPropagation(); openChartUrlFromEntry(currentEditingId, 'chart6')">
+                                <div id="view-chart6-preview-container"
+                                    class="w-full h-full flex items-center justify-center">
+                                    <p class="text-gray-500 text-sm">No Chart 6 available</p>
+                                </div>
+                            </div>
+                            <div class="chart-note" id="view-chart6-note"></div>
                         </div>
                     </div>
                 </div>
@@ -827,68 +973,86 @@
         <div
             class="bg-dark-800 rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-dark-700 modal">
             <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-white">Add Economic Event</h3>
-                    <button id="closeEventModal" class="text-gray-400 hover:text-white">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-white">
+                        <i class="fas fa-calendar-plus mr-2 text-orange-400"></i>
+                        Economic Event
+                    </h3>
+                    <button id="closeEventModal"
+                        class="text-gray-400 hover:text-white p-1 rounded-full hover:bg-dark-700">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
 
                 <form id="eventForm">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Date</label>
-                        <input type="date" id="eventDate"
-                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="event-modal-section">
+                            <label for="eventDate">Date</label>
+                            <input type="date" id="eventDate"
+                                class="w-full bg-dark-700 border border-dark-600 rounded p-2 text-white" required>
+                        </div>
+
+                        <div class="event-modal-section">
+                            <label for="eventTime">Time (EST)</label>
+                            <input type="time" id="eventTime"
+                                class="w-full bg-dark-700 border border-dark-600 rounded p-2 text-white" required>
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Time (EST)</label>
-                        <input type="time" id="eventTime"
-                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white" required>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Event Name</label>
+                    <div class="event-modal-section">
+                        <label for="eventName">Event Name</label>
                         <input type="text" id="eventName"
-                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            class="w-full bg-dark-700 border border-dark-600 rounded p-2 text-white"
                             placeholder="e.g. Non-Farm Payrolls" required>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Importance</label>
-                        <div class="dropdown-select">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="event-modal-section">
+                            <label for="eventImportance">Importance</label>
                             <select id="eventImportance"
-                                class="dropdown-toggle w-full flex justify-between items-center border border-dark-700 rounded p-2 bg-dark-800 text-white text-left"
-                                required>
+                                class="w-full bg-dark-700 border border-dark-600 rounded p-2 text-white" required>
                                 <option value="high">High</option>
                                 <option value="medium">Medium</option>
                                 <option value="low">Low</option>
                                 <option value="none">None</option>
                             </select>
                         </div>
+
+                        <div class="event-modal-section">
+                            <label for="eventCurrency">Currency/Asset</label>
+                            <input type="text" id="eventCurrency"
+                                class="w-full bg-dark-700 border border-dark-600 rounded p-2 text-white"
+                                placeholder="e.g. USD, EUR, BTC">
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Currency/Asset</label>
-                        <input type="text" id="eventCurrency"
-                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
-                            placeholder="e.g. USD, EUR, BTC">
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Notes</label>
+                    <div class="event-modal-section">
+                        <label for="eventNotes">Notes</label>
                         <textarea id="eventNotes" rows="3"
-                            class="border border-dark-700 rounded p-2 w-full bg-dark-800 text-white"
+                            class="w-full bg-dark-700 border border-dark-600 rounded p-2 text-white"
                             placeholder="Additional details about the event"></textarea>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-4">
+                    <div class="event-modal-section border-t border-dark-700 pt-4 mt-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="eventAlarmEnabled" class="form-checkbox h-4 w-4 text-blue-500 bg-dark-700 border-dark-600 rounded focus:ring-blue-500">
+                            <span class="text-sm text-gray-300">Activer une alarme de rappel</span>
+                        </label>
+                        <div id="eventAlarmOptions" class="mt-2 pl-6 hidden">
+                             <label for="eventAlarmMinutes" class="block text-xs font-medium text-gray-400 mb-1">Rappeler combien de minutes avant ?</label>
+                             <input type="number" id="eventAlarmMinutes" min="1" step="1" value="15" class="w-24 bg-dark-700 border border-dark-600 rounded p-1 text-white text-sm">
+                        </div>
+                    </div>
+
+
+                    <div class="flex justify-end space-x-3 pt-6">
                         <button type="button" id="cancelEvent"
-                            class="px-4 py-2 border border-dark-700 rounded-lg text-gray-300 hover:bg-dark-700 hover:text-white">
+                            class="px-4 py-2 border border-dark-600 rounded-lg text-gray-300 hover:bg-dark-700 hover:text-white transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                            Save Event
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-save mr-1"></i> Save Event
                         </button>
                     </div>
                 </form>
@@ -950,6 +1114,10 @@
         const closeEventModal = document.getElementById('closeEventModal');
         const cancelEvent = document.getElementById('cancelEvent');
         const eventForm = document.getElementById('eventForm');
+        const eventAlarmEnabled = document.getElementById('eventAlarmEnabled');
+        const eventAlarmOptions = document.getElementById('eventAlarmOptions');
+        const eventAlarmMinutes = document.getElementById('eventAlarmMinutes');
+
 
         // Tag functionality
         const tagInput = document.getElementById('tagInput');
@@ -987,7 +1155,26 @@
 
             // Initialize dropdowns for New Entry Modal
             setupEntryModalDropdowns();
+
+            // Setup alarm checkbox listener
+            setupAlarmCheckboxListener();
+
+            // Start checking for alarms
+            checkAlarms(); // Check immediately on load
+            setInterval(checkAlarms, 60000); // Check every 60 seconds
         });
+
+        // Setup listener for alarm checkbox
+        function setupAlarmCheckboxListener() {
+            if (eventAlarmEnabled) {
+                eventAlarmEnabled.addEventListener('change', () => {
+                    if (eventAlarmOptions) {
+                        eventAlarmOptions.classList.toggle('hidden', !eventAlarmEnabled.checked);
+                    }
+                });
+            }
+        }
+
 
         // Delete all entries
         deleteAllBtn.addEventListener('click', () => {
@@ -1217,10 +1404,19 @@
                 const time = event.time ? `<span class="text-blue-400">${event.time}</span>` : '';
                 const currency = event.currency ? `<span class="bg-dark-600 px-2 py-1 rounded text-xs ml-2">${event.currency}</span>` : '';
 
+                // Determine importance badge
+                let importanceBadge = '';
+                if (event.importance) {
+                    importanceBadge = `<span class="event-importance-badge importance-${event.importance}">${event.importance.charAt(0).toUpperCase() + event.importance.slice(1)}</span>`;
+                }
+
                 eventElement.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="font-medium">${event.name}</div>
-                        ${time} ${currency}
+                        <div class="flex items-center gap-2">
+                            ${importanceBadge}
+                            ${time} ${currency}
+                        </div>
                     </div>
                     ${event.notes ? `<div class="text-gray-400 mt-1">${event.notes}</div>` : ''}
                     <div class="flex justify-end mt-2">
@@ -1261,13 +1457,22 @@
             // Fill the form with event data
             const eventDate = new Date(event.date);
             const formattedDate = eventDate.toISOString().split('T')[0];
+            const formattedTime = event.time || '00:00';
 
             document.getElementById('eventDate').value = formattedDate;
-            document.getElementById('eventTime').value = event.time || '';
+            document.getElementById('eventTime').value = formattedTime;
             document.getElementById('eventName').value = event.name;
             document.getElementById('eventImportance').value = event.importance || 'none';
             document.getElementById('eventCurrency').value = event.currency || '';
             document.getElementById('eventNotes').value = event.notes || '';
+
+            // Load alarm settings
+            eventAlarmEnabled.checked = event.alarmEnabled || false;
+            eventAlarmMinutes.value = event.alarmMinutes || 15;
+            if (eventAlarmOptions) {
+                 eventAlarmOptions.classList.toggle('hidden', !eventAlarmEnabled.checked);
+            }
+
 
             // Store the event ID in the form
             eventForm.dataset.editingId = eventId;
@@ -1311,9 +1516,17 @@
             // Reset form and set default date to selected date
             eventForm.reset();
             delete eventForm.dataset.editingId;
+            // Reset alarm fields specifically
+            eventAlarmEnabled.checked = false;
+            eventAlarmMinutes.value = 15;
+            if (eventAlarmOptions) {
+                eventAlarmOptions.classList.add('hidden');
+            }
+
 
             const formattedDate = selectedDate.toISOString().split('T')[0];
             document.getElementById('eventDate').value = formattedDate;
+            document.getElementById('eventTime').value = '00:00';
 
             // Show the modal
             eventModal.classList.remove('hidden');
@@ -1338,6 +1551,17 @@
             const importance = document.getElementById('eventImportance').value;
             const currency = document.getElementById('eventCurrency').value;
             const notes = document.getElementById('eventNotes').value;
+            const alarmEnabled = eventAlarmEnabled.checked;
+            const alarmMinutes = parseInt(eventAlarmMinutes.value, 10) || 15; // Default to 15 if invalid
+
+            // Find existing triggered status if editing
+            let existingTriggeredStatus = false;
+            let existingEvent = null;
+            if (eventForm.dataset.editingId) {
+                existingEvent = economicEvents.find(e => e.id === eventForm.dataset.editingId);
+                existingTriggeredStatus = existingEvent?.alarmTriggered || false;
+            }
+
 
             const event = {
                 id: eventForm.dataset.editingId || Date.now().toString(),
@@ -1346,8 +1570,17 @@
                 name,
                 importance,
                 currency,
-                notes
+                notes,
+                alarmEnabled,
+                alarmMinutes,
+                alarmTriggered: existingTriggeredStatus // Preserve triggered status initially
             };
+
+             // Reset triggered status if alarm is disabled or details change significantly
+            if (!alarmEnabled || (eventForm.dataset.editingId && existingEvent && (event.date !== existingEvent.date || event.time !== existingEvent.time || event.alarmMinutes !== existingEvent.alarmMinutes))) {
+                 event.alarmTriggered = false;
+            }
+
 
             if (eventForm.dataset.editingId) {
                 // Update existing event
@@ -1409,25 +1642,32 @@
 
         // Set up image URL previews
         function setupImagePreviews() {
-            document.getElementById('entryH1ImageUrl').addEventListener('input', (e) => {
-                updateImagePreview(e.target.value, 'h1-preview-container');
+            document.getElementById('entryChart1ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'chart1-preview-container', 'Chart 1');
             });
-
-            document.getElementById('entryM15ImageUrl').addEventListener('input', (e) => {
-                updateImagePreview(e.target.value, 'm15-preview-container');
+            document.getElementById('entryChart2ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'chart2-preview-container', 'Chart 2');
             });
-
-            document.getElementById('entryM5ImageUrl').addEventListener('input', (e) => {
-                updateImagePreview(e.target.value, 'm5-preview-container');
+            document.getElementById('entryChart3ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'chart3-preview-container', 'Chart 3');
+            });
+            document.getElementById('entryChart4ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'chart4-preview-container', 'Chart 4');
+            });
+            document.getElementById('entryChart5ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'chart5-preview-container', 'Chart 5');
+            });
+            document.getElementById('entryChart6ImageUrl').addEventListener('input', (e) => {
+                updateImagePreview(e.target.value, 'chart6-preview-container', 'Chart 6');
             });
         }
 
-        function updateImagePreview(url, containerId) {
+        function updateImagePreview(url, containerId, chartName) {
             const container = document.getElementById(containerId);
             if (url && isValidUrl(url)) {
-                container.innerHTML = `<img src="${url}" alt="Chart preview" class="max-h-full max-w-full object-contain">`;
+                container.innerHTML = `<img src="${url}" alt="${chartName} preview" class="max-h-full max-w-full object-contain">`;
             } else {
-                container.innerHTML = `<p class="text-gray-500 text-sm">${containerId.replace('-preview-container', '').toUpperCase()} chart preview will appear here</p>`;
+                container.innerHTML = `<p class="text-gray-500 text-sm">${chartName} preview will appear here</p>`;
             }
         }
 
@@ -1535,15 +1775,11 @@
             tagsContainer.innerHTML = '';
 
             // Reset chart URLs and previews
-            document.getElementById('entryH1ImageUrl').value = '';
-            document.getElementById('entryM15ImageUrl').value = '';
-            document.getElementById('entryM5ImageUrl').value = '';
-            document.getElementById('entryH1Notes').value = '';
-            document.getElementById('entryM15Notes').value = '';
-            document.getElementById('entryM5Notes').value = '';
-            document.getElementById('h1-preview-container').innerHTML = '<p class="text-gray-500 text-sm">H1 chart preview will appear here</p>';
-            document.getElementById('m15-preview-container').innerHTML = '<p class="text-gray-500 text-sm">M15 chart preview will appear here</p>';
-            document.getElementById('m5-preview-container').innerHTML = '<p class="text-gray-500 text-sm">M5/M2 chart preview will appear here</p>';
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`entryChart${i}ImageUrl`).value = '';
+                document.getElementById(`entryChart${i}Notes`).value = '';
+                document.getElementById(`chart${i}-preview-container`).innerHTML = `<p class="text-gray-500 text-sm">Chart ${i} preview will appear here</p>`;
+            }
 
             // Set default date/time and session
             setDefaultDateTime();
@@ -1624,12 +1860,12 @@
             const symbol = document.getElementById('entrySymbol').value;
             const title = document.getElementById('entryTitle').value;
             const notes = document.getElementById('entryNotes').value;
-            const h1ImageUrl = document.getElementById('entryH1ImageUrl').value;
-            const m15ImageUrl = document.getElementById('entryM15ImageUrl').value;
-            const m5ImageUrl = document.getElementById('entryM5ImageUrl').value;
-            const h1Notes = document.getElementById('entryH1Notes').value;
-            const m15Notes = document.getElementById('entryM15Notes').value;
-            const m5Notes = document.getElementById('entryM5Notes').value;
+            
+            const chartData = {};
+            for (let i = 1; i <= 6; i++) {
+                chartData[`chart${i}ImageUrl`] = document.getElementById(`entryChart${i}ImageUrl`).value;
+                chartData[`chart${i}Notes`] = document.getElementById(`entryChart${i}Notes`).value;
+            }
 
             const tags = Array.from(tagsContainer.querySelectorAll('.tag')).map(tag => tag.dataset.tag);
 
@@ -1641,12 +1877,7 @@
                 symbol,
                 title,
                 notes,
-                h1ImageUrl,
-                m15ImageUrl,
-                m5ImageUrl,
-                h1Notes,
-                m15Notes,
-                m5Notes,
+                ...chartData, // Spread chart URLs and notes
                 tags
             };
 
@@ -1734,32 +1965,18 @@
                         </span>
                     </div>
                     <div class="text-sm text-gray-300 mb-3 line-clamp-2">${entry.notes}</div>
-                    ${entry.h1ImageUrl || entry.m15ImageUrl || entry.m5ImageUrl ? `
+                    ${[1, 2, 3, 4, 5, 6].some(i => entry[`chart${i}ImageUrl`]) ? `
                         <div class="chart-grid mb-3">
+                            ${[1, 2, 3].map(i => `
                             <div class="chart-container">
-                                <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'h1')">
-                                    ${entry.h1ImageUrl ?
-                            `<img src=\"${entry.h1ImageUrl}\" alt=\"H1 chart\" class=\"max-h-full max-w-full object-contain\">` :
-                            `<p class=\"text-gray-500 text-sm\">No H1 chart</p>`}
+                                <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'chart${i}')">
+                                    ${entry[`chart${i}ImageUrl`] ?
+                            `<img src=\"${entry[`chart${i}ImageUrl`]}\" alt=\"Chart ${i}\" class=\"max-h-full max-w-full object-contain\">` :
+                            `<p class=\"text-gray-500 text-sm\">No Chart ${i}</p>`}
                                 </div>
-                                <div class="chart-note">${entry.h1Notes || ''}</div>
+                                <div class="chart-note">${entry[`chart${i}Notes`] || ''}</div>
                             </div>
-                            <div class="chart-container">
-                                <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'm15')">
-                                    ${entry.m15ImageUrl ?
-                            `<img src=\"${entry.m15ImageUrl}\" alt=\"M15 chart\" class=\"max-h-full max-w-full object-contain\">` :
-                            `<p class=\"text-gray-500 text-sm\">No M15 chart</p>`}
-                                </div>
-                                <div class="chart-note">${entry.m15Notes || ''}</div>
-                            </div>
-                            <div class="chart-container">
-                                <div class="chart-preview" onclick="event.stopPropagation(); openChartUrlFromEntry('${entry.id}', 'm5')">
-                                    ${entry.m5ImageUrl ?
-                            `<img src=\"${entry.m5ImageUrl}\" alt=\"M5/M2 chart\" class=\"max-h-full max-w-full object-contain\">` :
-                            `<p class=\"text-gray-500 text-sm\">No M5/M2 chart</p>`}
-                                </div>
-                                <div class="chart-note">${entry.m5Notes || ''}</div>
-                            </div>
+                            `).join('')}
                         </div>
                     ` : ''}
                     <div class="flex flex-wrap gap-2">
@@ -1873,26 +2090,22 @@
 
             // Set up chart images and notes
             const h1Container = document.getElementById('view-h1-preview-container');
-            const m15Container = document.getElementById('view-m15-preview-container');
-            const m5Container = document.getElementById('view-m5-preview-container');
-            const h1Note = document.getElementById('view-h1-note');
-            const m15Note = document.getElementById('view-m15-note');
-            const m5Note = document.getElementById('view-m5-note');
+            // Set up chart images and notes
+            for (let i = 1; i <= 6; i++) {
+                const chartPreviewContainer = document.getElementById(`view-chart${i}-preview-container`);
+                const chartNoteElement = document.getElementById(`view-chart${i}-note`);
+                const imageUrl = entry[`chart${i}ImageUrl`];
+                const imageNotes = entry[`chart${i}Notes`];
 
-            h1Container.innerHTML = entry.h1ImageUrl
-                ? `<img src="${entry.h1ImageUrl}" alt="H1 chart" class="max-h-full max-w-full object-contain">`
-                : '<p class="text-gray-500 text-sm">No H1 chart available</p>';
-            h1Note.textContent = entry.h1Notes || '';
-
-            m15Container.innerHTML = entry.m15ImageUrl
-                ? `<img src="${entry.m15ImageUrl}" alt="M15 chart" class="max-h-full max-w-full object-contain">`
-                : '<p class="text-gray-500 text-sm">No M15 chart available</p>';
-            m15Note.textContent = entry.m15Notes || '';
-
-            m5Container.innerHTML = entry.m5ImageUrl
-                ? `<img src="${entry.m5ImageUrl}" alt="M5/M2 chart" class="max-h-full max-w-full object-contain">`
-                : '<p class="text-gray-500 text-sm">No M5/M2 chart available</p>';
-            m5Note.textContent = entry.m5Notes || '';
+                if (chartPreviewContainer) {
+                    chartPreviewContainer.innerHTML = imageUrl
+                        ? `<img src="${imageUrl}" alt="Chart ${i}" class="max-h-full max-w-full object-contain">`
+                        : `<p class="text-gray-500 text-sm">No Chart ${i} available</p>`;
+                }
+                if (chartNoteElement) {
+                    chartNoteElement.textContent = imageNotes || '';
+                }
+            }
 
             // Set up tags
             const tagsContainer = document.getElementById('viewEntryTags');
@@ -1933,17 +2146,12 @@
             document.getElementById('entrySymbol').value = entry.symbol;
             document.getElementById('entryTitle').value = entry.title;
             document.getElementById('entryNotes').value = entry.notes;
-            document.getElementById('entryH1ImageUrl').value = entry.h1ImageUrl || '';
-            document.getElementById('entryM15ImageUrl').value = entry.m15ImageUrl || '';
-            document.getElementById('entryM5ImageUrl').value = entry.m5ImageUrl || '';
-            document.getElementById('entryH1Notes').value = entry.h1Notes || '';
-            document.getElementById('entryM15Notes').value = entry.m15Notes || '';
-            document.getElementById('entryM5Notes').value = entry.m5Notes || '';
 
-            // Update image previews
-            updateImagePreview(entry.h1ImageUrl, 'h1-preview-container');
-            updateImagePreview(entry.m15ImageUrl, 'm15-preview-container');
-            updateImagePreview(entry.m5ImageUrl, 'm5-preview-container');
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`entryChart${i}ImageUrl`).value = entry[`chart${i}ImageUrl`] || '';
+                document.getElementById(`entryChart${i}Notes`).value = entry[`chart${i}Notes`] || '';
+                updateImagePreview(entry[`chart${i}ImageUrl`], `chart${i}-preview-container`, `Chart ${i}`);
+            }
 
             // Add tags
             tagsContainer.innerHTML = '';
@@ -2075,6 +2283,73 @@
             const [hour, minute] = timePart.split(':');
             return `${day}/${month}/${year.slice(2)} - ${hour}:${minute}`;
         }
+
+        // --- Alarm Notification Logic ---
+        function checkAlarms() {
+            const now = new Date();
+            let updated = false;
+            // console.log("Checking alarms at", now); // Debug log
+
+            economicEvents.forEach((event, index) => {
+                if (event.alarmEnabled && !event.alarmTriggered && event.date && event.time) {
+                    const [year, month, day] = event.date.split('-');
+                    const [hour, minute] = event.time.split(':');
+                    
+                    // Construct event date object (assuming EST for now, needs refinement for proper timezone handling)
+                    // WARNING: Simple date construction might be inaccurate due to timezones/DST.
+                    // A robust solution would use a library or more complex date parsing based on a defined timezone (e.g., UTC storage + local conversion).
+                    // For now, we proceed with local time interpretation for simplicity.
+                    const eventDateTime = new Date(year, month - 1, day, hour, minute);
+
+                    if (isNaN(eventDateTime.getTime())) {
+                        console.error("Invalid date/time for event:", event);
+                        return; // Skip invalid event
+                    }
+
+                    const alarmTime = new Date(eventDateTime.getTime() - (event.alarmMinutes * 60000)); // Subtract minutes
+
+                    // console.log(`Event: ${event.name}, Event Time: ${eventDateTime}, Alarm Time: ${alarmTime}, Now: ${now}`); // Debug log
+
+                    if (now >= alarmTime) {
+                        console.log(`Triggering alarm for: ${event.name}`); // Debug log
+                        showNotification(event);
+                        economicEvents[index].alarmTriggered = true; // Mark as triggered
+                        updated = true;
+                    }
+                }
+            });
+
+            if (updated) {
+                localStorage.setItem('economicEvents', JSON.stringify(economicEvents));
+                // Optionally re-render events if visual indication of triggered alarm is needed
+                // renderEventsForDate(selectedDate); 
+            }
+        }
+
+        function showNotification(event) {
+            if (!("Notification" in window)) {
+                alert("Ce navigateur ne supporte pas les notifications de bureau");
+            } else if (Notification.permission === "granted") {
+                // If it's okay let's create a notification
+                const notification = new Notification(`Rappel: ${event.name}`, {
+                    body: `L'événement est prévu pour ${event.time} (EST).`,
+                    icon: 'https://cdn-icons-png.flaticon.com/512/1041/1041847.png' // Optional: Add an icon URL
+                });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then((permission) => {
+                    // If the user accepts, let's create a notification
+                    if (permission === "granted") {
+                        const notification = new Notification(`Rappel: ${event.name}`, {
+                           body: `L'événement est prévu pour ${event.time} (EST).`,
+                           icon: 'https://cdn-icons-png.flaticon.com/512/1041/1041847.png' // Optional: Add an icon URL
+                        });
+                    }
+                });
+            }
+            // At last, if the user has denied notifications, and you
+            // want to be annoying, you could ask them to change their settings.
+        }
+
     </script>
 
     <footer
@@ -2097,3 +2372,19 @@
 </body>
 
 </html>
+<environment_details>
+# VSCode Visible Files
+index.html
+
+# VSCode Open Tabs
+index.html
+
+# Current Time
+08/05/2025 7:52:40 AM (Europe/Paris, UTC+2:00)
+
+# Context Window Usage
+284 247 / 1 048,576K tokens used (27%)
+
+# Current Mode
+ACT MODE
+</environment_details>
